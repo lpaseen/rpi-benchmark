@@ -1,6 +1,10 @@
 #!/bin/bash
 
-[ "$(whoami)" == "root" ] || { echo "Must be run as sudo!"; exit 1; }
+
+if [ "$(id -u)" != "0" ];then
+    echo "Must run as root!"
+    exit 1
+fi
 
 # Install dependencies
 if [ ! `which hdparm` ]; then
@@ -17,15 +21,15 @@ fi
 clear
 sync
 echo -e "\e[96mRaspberry Pi Benchmark Test"
-echo -e "Author: AikonCWD"
-echo -e "Version: 3.0\n\e[97m"
+#echo -e "Author: AikonCWD"
+#echo -e "Version: 3.0\n\e[97m"
+echo -e "Forked from AikonCWD"
+echo -e "Version: 1.0\n\e[95m"
 
 # Show current hardware
+echo "Model: $(tr -d '\0' </proc/device-tree/model)"
 vcgencmd measure_temp
-vcgencmd get_config int | grep arm_freq
-vcgencmd get_config int | grep core_freq
-vcgencmd get_config int | grep sdram_freq
-vcgencmd get_config int | grep gpu_freq
+vcgencmd get_config int|grep -E "arm_freq|core_freq|gpu_freq|sdram_freq"
 printf "sd_clock="
 grep "actual clock" /sys/kernel/debug/mmc0/ios 2>/dev/null | awk '{printf("%0.3f MHz", $3/1000000)}'
 echo -e "\n\e[93m"
@@ -65,4 +69,4 @@ vcgencmd measure_temp
 rm -f ~/test.tmp
 echo -e "\e[0m"
 
-echo -e "\e[91mAikonCWD's rpi-benchmark completed!\e[0m\n"
+echo -e "\e[91mrpi-benchmark completed!\e[0m\n"
